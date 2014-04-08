@@ -29,7 +29,7 @@ function audioLayerControl(elementContext)
     
     this.audioPlayback.addUpdateListener(this);
 
-    this.spectrum = new SpectrumDisplay(this.elementContext, $('#spectrum')[0]);    
+    this.spectrum = new SpectrumDisplay(this.elementContext, $('#spectrum')[0]);
     this.spectrumWorker = new SpectrumWorker();
     
     this.audioPlaybackUpdate = function audioPlaybackUpdate()
@@ -66,7 +66,7 @@ function audioLayerControl(elementContext)
 
     };
     
-    // Properties    
+    // Properties
     this.setTitle = function setTitle(titleValue)
     {
         this.title = titleValue;
@@ -116,7 +116,7 @@ function audioLayerControl(elementContext)
                 for(var j = i + 1; j < this.listOfSequenceEditors.length; ++j)
                 {
                     this.listOfSequenceEditors[i].link(this.listOfSequenceEditors[j]);
-                }   
+                }
             }
         }
         else
@@ -146,7 +146,7 @@ function audioLayerControl(elementContext)
         elementContext.attributes.title !== null)
     {
         this.setTitle(elementContext.attributes.title.value);
-    }    
+    }
     
     // public functions
     this.createSequenceEditor = function createSequenceEditor(name)
@@ -172,7 +172,7 @@ function audioLayerControl(elementContext)
                 --i;
             }
         }
-    };    
+    };
     
     this.setLinkMode = function setLinkMode(linkModeValue)
     {
@@ -222,7 +222,7 @@ function audioLayerControl(elementContext)
         for(var i = 0; i < this.audioLayerControl.listOfSequenceEditors.length; ++i)
         {
             this.audioLayerControl.listOfSequenceEditors[i].filterNormalize();
-        }  
+        }
     };
     
     this.filterFadeIn = function filterFadeIn()
@@ -230,7 +230,7 @@ function audioLayerControl(elementContext)
         for(var i = 0; i < this.audioLayerControl.listOfSequenceEditors.length; ++i)
         {
             this.audioLayerControl.listOfSequenceEditors[i].filterFade(true);
-        }  
+        }
     };
     
     this.filterFadeOut = function filterFadeOut()
@@ -238,7 +238,7 @@ function audioLayerControl(elementContext)
         for(var i = 0; i < this.audioLayerControl.listOfSequenceEditors.length; ++i)
         {
             this.audioLayerControl.listOfSequenceEditors[i].filterFade(false);
-        }  
+        }
     };
     
     this.filterGain = function filterGain(decibel)
@@ -246,7 +246,7 @@ function audioLayerControl(elementContext)
         for(var i = 0; i < this.audioLayerControl.listOfSequenceEditors.length; ++i)
         {
             this.audioLayerControl.listOfSequenceEditors[i].filterGain(decibel);
-        } 
+        }
     };
     
     this.filterSilence = function filterSilence()
@@ -254,7 +254,7 @@ function audioLayerControl(elementContext)
         for(var i = 0; i < this.audioLayerControl.listOfSequenceEditors.length; ++i)
         {
             this.audioLayerControl.listOfSequenceEditors[i].filterSilence();
-        } 
+        }
     };
     
     this.copy = function copy()
@@ -262,7 +262,7 @@ function audioLayerControl(elementContext)
         for(var i = 0; i < this.audioLayerControl.listOfSequenceEditors.length; ++i)
         {
             this.audioLayerControl.listOfSequenceEditors[i].copy(false);
-        } 
+        }
     };
     
     this.paste = function paste()
@@ -270,7 +270,7 @@ function audioLayerControl(elementContext)
         for(var i = 0; i < this.audioLayerControl.listOfSequenceEditors.length; ++i)
         {
             this.audioLayerControl.listOfSequenceEditors[i].paste(false);
-        } 
+        }
     };
     
     this.cut = function cut()
@@ -278,7 +278,7 @@ function audioLayerControl(elementContext)
         for(var i = 0; i < this.audioLayerControl.listOfSequenceEditors.length; ++i)
         {
             this.audioLayerControl.listOfSequenceEditors[i].cut(false);
-        } 
+        }
     };
     
     this.del = function del()
@@ -286,7 +286,7 @@ function audioLayerControl(elementContext)
         for(var i = 0; i < this.audioLayerControl.listOfSequenceEditors.length; ++i)
         {
             this.audioLayerControl.listOfSequenceEditors[i].del(false);
-        } 
+        }
     };
     
     // in und export
@@ -328,7 +328,12 @@ function audioLayerControl(elementContext)
         
         var selectionStart = this.audioLayerControl.listOfSequenceEditors[0].selectionStart;
         var selectionEnd = this.audioLayerControl.listOfSequenceEditors[0].selectionEnd;
-        if (selectionStart != selectionEnd)
+        
+        if (this.audioLayerControl.audioPlayback.isPaused)
+        {
+            this.audioLayerControl.audioPlayback.resume();
+        }
+        else if (selectionStart != selectionEnd)
         {
             this.audioLayerControl.audioPlayback.play(audioDataRefs,
                                                   this.audioLayerControl.listOfSequenceEditors[0].audioSequenceReference.sampleRate, this.playLoop,
@@ -347,7 +352,13 @@ function audioLayerControl(elementContext)
                                     host.audioLayerControl.audioPlayer.src = url;
                                     host.audioLayerControl.audioPlayer.play();
                                 }, this);
-        */  
+        */
+    };
+    
+    this.pause = function pause()
+    {
+        console.log("Pause");
+        this.audioLayerControl.audioPlayback.pause();
     };
     
     this.stop = function stop()
@@ -355,7 +366,7 @@ function audioLayerControl(elementContext)
         console.log("Stop");
         this.audioLayerControl.audioPlayback.stop();
         //this.audioLayerControl.stopFromAudioContext();
-        //this.audioLayerControl.audioPlayer.pause();   
+        //this.audioLayerControl.audioPlayer.pause();
     };
     
     this.toggleLoop = function toogleLoop()
@@ -403,7 +414,7 @@ function audioLayerControl(elementContext)
             sequence.createTestTone(44100 / 1024 * 10, 44100 * 10);
             editor.setAudioSequence(sequence);
             editor.zoomToFit();
-        }   
+        }
     };
     
     // Match functions for HTML Element
@@ -423,6 +434,7 @@ function audioLayerControl(elementContext)
     this.elementContext.toWave = this.toWave;
     this.elementContext.playToggle = this.playToggle;
     this.elementContext.play = this.play;
+    this.elementContext.pause = this.pause;
     this.elementContext.stop = this.stop;
     this.elementContext.toggleLoop = this.toggleLoop;
     this.elementContext.save = this.save;
@@ -447,7 +459,7 @@ function audioLayerControl(elementContext)
         {
             $('#app-progress')[0].style['width'] = '50%';
             activeAudioLayerControl = this.eventHost.elementContext;
-            this.eventHost.audioPlayback.audioContext.decodeAudioData(this.resultArrayBuffer, this.eventHost.decodeAudioFinished, this.eventHost.decodeAudioFailed);  
+            this.eventHost.audioPlayback.audioContext.decodeAudioData(this.resultArrayBuffer, this.eventHost.decodeAudioFinished, this.eventHost.decodeAudioFailed);
         }
         
         filedb.onFail = function(e)
@@ -477,7 +489,7 @@ function audioLayerControl(elementContext)
             };
           
             console.log('Error: ' + msg);
-        }  
+        }
     };
     
     this.decodeAudioFinished = function decodeAudioFinished(audioBuffer)
@@ -526,15 +538,15 @@ function initializeAudioLayerControls()
         
         if (tagName.toLowerCase() == "audiolayercontrol")
         {
-            obj = new audioLayerControl(allElements[i]);   
+            obj = new audioLayerControl(allElements[i]);
         }
         else if (tagName.toLowerCase() == "audiolayernavigation")
         {
-            obj = new audioLayerControl(allElements[i]);   
+            obj = new audioLayerControl(allElements[i]);
         }
         else if (tagName.toLowerCase() == "audiolayersequenceeditor")
         {
-            obj = new AudioLayerSequenceEditor(allElements[i]);   
+            obj = new AudioLayerSequenceEditor(allElements[i]);
         }
     }*/
 }

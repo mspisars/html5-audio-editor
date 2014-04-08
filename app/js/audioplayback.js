@@ -49,7 +49,7 @@ function AudioPlayback()
     /**
      * Copies the audio data to a channel buffer and sets the new play position. If looping is enabled,
      * the position is set automaticly.
-     * @param bufferReference Reference to the channel buffer 
+     * @param bufferReference Reference to the channel buffer
      * @param dataReference Reference to the audio data
      * @param position Current position of the playback
      * @param len Length of the chunk
@@ -86,7 +86,7 @@ function AudioPlayback()
             this.copyIntoBuffer(bufferReference, 0, dataReference, firstSplitStart, firstSplitEnd);
             
             if (isLooped)
-            {                
+            {
                 this.copyIntoBuffer(bufferReference, firstSplitLen, dataReference, secondSplitStart, secondSplitEnd);
        
                 return secondSplitEnd;
@@ -103,7 +103,7 @@ function AudioPlayback()
      */
     this.copyIntoBuffer = function copyIntoBuffer(bufferReference, bufferOffset, dataReference, dataOffset, end)
     {
-        bufferReference.set(dataReference.slice(dataOffset, end), bufferOffset);  
+        bufferReference.set(dataReference.slice(dataOffset, end), bufferOffset);
     };
     
     
@@ -136,7 +136,7 @@ function AudioPlayback()
     this.stop = function stop()
     {
         // no playing audio, nothing to stop
-        if (this.isPlaying === false) return;
+        if (this.isPlaying === false && this.isPaused === false) return;
         
         // diconnect the node, stop!
         this.javaScriptNode.disconnect(this.analyserNode);
@@ -146,7 +146,7 @@ function AudioPlayback()
         this.playEnd = 0;
         this.isLooped = false;
         this.currentPlayPosition = 0;
-        this.isPlaying = false;
+        this.isPlaying = this.isPaused = false;
         this.lastPlaybackUpdate = 0;
         
         // remove reference to the audio data
@@ -165,10 +165,11 @@ function AudioPlayback()
         // no playing audio, nothing to pause
         if (this.isPlaying === false) return;
         this.isPlaying = false;
+        this.isPaused = true;
         this.lastPlaybackUpdate = 0;
         
         // diconnect the node, stop!
-        this.audioJavaScriptNode.disconnect(this.analyserNode);
+        this.javaScriptNode.disconnect(this.analyserNode);
         
         // inform updatelistener
         this.notifyUpdateListener();
@@ -180,11 +181,12 @@ function AudioPlayback()
     this.resume = function resume()
     {
         // check if already playing or no data was given
-        if (this.isPlaying || this.audioDataRef === undefined || this.audioDataRef.length < 1) return;
+        if (!this.isPaused || this.isPlaying || this.audioDataRef === undefined || this.audioDataRef.length < 1) return;
         this.isPlaying = true;
+        this.isPaused = false;
         
         // connect the node, play!
-        this.audioJavaScriptNode.connect(this.analyserNode);
+        this.javaScriptNode.connect(this.analyserNode);
         
         // inform updatelistener
         this.notifyUpdateListener();
@@ -205,7 +207,7 @@ function AudioPlayback()
     {
         for(var i = 0; i < this.updateListener.length; ++i)
         {
-            this.updateListener[i].audioPlaybackUpdate();   
+            this.updateListener[i].audioPlaybackUpdate();
         }
     };
     
@@ -214,7 +216,7 @@ function AudioPlayback()
     this.sampleRate = 0;
     this.audioContext = new webkitAudioContext();
 
-    // The JavaScriptNode is used to modifiy the output buffer    
+    // The JavaScriptNode is used to modifiy the output buffer
     this.javaScriptNode = this.audioContext.createJavaScriptNode(this.audioBufferSize, 1, 2);
     this.javaScriptNode.onaudioprocess = this.onAudioUpdate;
     this.javaScriptNode.eventHost = this;
@@ -233,6 +235,7 @@ function AudioPlayback()
     this.isLooped = false;
     this.currentPlayPosition = 0;
     this.isPlaying = false;
+    this.isPaused = false;
     
     // Callback information
     this.updateListener = [];
